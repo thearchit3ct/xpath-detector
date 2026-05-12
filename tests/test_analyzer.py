@@ -41,3 +41,27 @@ def test_generate_by_aria_label():
     cand = next(c for c in candidates if c.strategy == "by_aria_label")
     assert cand.expression == "//button[@aria-label='Close']"
     assert cand.stability_score == 75
+
+
+def test_generate_by_text():
+    candidates = generate_candidates(tag="a", text="Valider", attributes={})
+    cand = next(c for c in candidates if c.strategy == "by_text")
+    assert cand.expression == "//a[contains(.,'Valider')]"
+    assert cand.stability_score == 70
+
+
+def test_by_text_escapes_apostrophe():
+    candidates = generate_candidates(tag="a", text="L'utilisateur", attributes={})
+    cand = next(c for c in candidates if c.strategy == "by_text")
+    assert "concat(" in cand.expression
+
+
+def test_by_text_skipped_if_too_long():
+    long_text = "a" * 80
+    candidates = generate_candidates(tag="div", text=long_text, attributes={})
+    assert not any(c.strategy == "by_text" for c in candidates)
+
+
+def test_by_text_skipped_if_empty():
+    candidates = generate_candidates(tag="div", text="", attributes={})
+    assert not any(c.strategy == "by_text" for c in candidates)

@@ -44,5 +44,14 @@ def generate_candidates(
                 )
             )
 
+    if text and 0 < len(text) < 50:
+        candidates.append(
+            XPathCandidate(
+                strategy="by_text",
+                expression=f"//{tag}[contains(.,{escape_xpath_literal(text)})]",
+                stability_score=70,
+            )
+        )
+
     candidates.sort(key=lambda c: -c.stability_score)
     return candidates
