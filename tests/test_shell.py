@@ -55,6 +55,7 @@ def test_on_capture_adds_element_to_current_screen(shell_no_browser):
                 "is_visible": True,
                 "is_enabled": True,
                 "absolute_xpath": "/html/body/input",
+                "nearby_label": "Username",
             }
         )
 
@@ -63,6 +64,7 @@ def test_on_capture_adds_element_to_current_screen(shell_no_browser):
     assert el.tag == "input"
     assert el.description == "test desc"
     assert any(c.strategy == "by_id" for c in el.xpaths)
+    assert any(c.strategy == "by_label_neighbor" for c in el.xpaths)
 
 
 def test_cmd_export_all_dispatches_to_each_exporter(shell_no_browser, tmp_path: Path, monkeypatch):

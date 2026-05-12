@@ -184,6 +184,7 @@ class Shell:
             text=data.get("text"),
             attributes=data.get("attributes", {}),
             absolute_xpath=data.get("absolute_xpath"),
+            nearby_label=data.get("nearby_label"),
         )
         element = Element(
             tag=data["tag"],
