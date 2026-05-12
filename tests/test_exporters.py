@@ -82,3 +82,24 @@ def test_python_exporter_generates_module(tmp_path: Path):
     assert "from selenium.webdriver.common.by import By" in content
     assert "class Login:" in content
     assert "(By.XPATH, \"//input[@id='_login']\")" in content
+
+
+def test_html_exporter_escapes_user_content(tmp_path: Path):
+    from xpath_detector.exporters.html_exp import HtmlExporter
+
+    session = _sample_session()
+    session.screens["login"].elements[0].description = "<script>alert(1)</script>"
+
+    out = HtmlExporter().export(session, tmp_path)
+    content = out.read_text()
+    assert "<script>alert(1)</script>" not in content
+    assert "&lt;script&gt;" in content
+
+
+def test_html_exporter_contains_session_info(tmp_path: Path):
+    from xpath_detector.exporters.html_exp import HtmlExporter
+
+    out = HtmlExporter().export(_sample_session(), tmp_path)
+    content = out.read_text()
+    assert "20260512_120000" in content
+    assert "login" in content
