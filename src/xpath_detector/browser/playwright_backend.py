@@ -72,9 +72,16 @@ class PlaywrightBackend(BrowserBackend):
                 self._pw.stop()
 
     def _poll_loop(self) -> None:
+        last_url: str | None = None
         while self._running:
             try:
                 if self._page:
+                    # Detect navigation : if URL changed, the overlay is gone -> re-inject.
+                    current = self._page.url
+                    if current and current != last_url:
+                        last_url = current
+                        self._page.evaluate(OVERLAY_JS)
+
                     items = self._page.evaluate(
                         "() => (window.__xpath_capture_queue || []).splice(0)"
                     )

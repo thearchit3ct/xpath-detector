@@ -63,9 +63,16 @@ class SeleniumBackend(BrowserBackend):
             self._driver.quit()
 
     def _poll_loop(self) -> None:
+        last_url: str | None = None
         while self._running:
             try:
                 if self._driver:
+                    # Detect navigation : if URL changed, the overlay is gone -> re-inject.
+                    current = self._driver.current_url
+                    if current and current != last_url:
+                        last_url = current
+                        self._driver.execute_script(OVERLAY_JS)
+
                     items = self._driver.execute_script(
                         "return (window.__xpath_capture_queue || []).splice(0);"
                     )

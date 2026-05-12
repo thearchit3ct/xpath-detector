@@ -2,6 +2,15 @@
 
 All notable changes to xpath-detector are documented here.
 
+## [1.2.3] - 2026-05-12
+
+### Fixed
+- Overlay was lost after browser navigation (user clicks a link). Captures on the
+  new page silently did nothing because `window.__xpath_detector_installed` was
+  destroyed by the page reload. The poll loop now detects URL changes and
+  auto-reinjects the overlay (`SeleniumBackend._poll_loop` and
+  `PlaywrightBackend._poll_loop`). No user action required after navigating.
+
 ## [1.2.2] - 2026-05-12
 
 ### Fixed
