@@ -49,3 +49,14 @@ def test_json_exporter_creates_file(tmp_path: Path):
     data = json.loads(out.read_text())
     assert data["id"] == "20260512_120000"
     assert "login" in data["screens"]
+
+
+def test_robot_exporter_writes_resource_per_screen(tmp_path: Path):
+    from xpath_detector.exporters.robot_exp import RobotExporter
+
+    out = RobotExporter().export(_sample_session(), tmp_path)
+    resource = out / "login" / "locators.resource"
+    assert resource.exists()
+    content = resource.read_text()
+    assert "*** Variables ***" in content
+    assert "//input[@id='_login']" in content
