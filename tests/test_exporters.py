@@ -60,3 +60,14 @@ def test_robot_exporter_writes_resource_per_screen(tmp_path: Path):
     content = resource.read_text()
     assert "*** Variables ***" in content
     assert "//input[@id='_login']" in content
+
+
+def test_java_exporter_generates_locators_class(tmp_path: Path):
+    from xpath_detector.exporters.java_exp import JavaExporter
+
+    out = JavaExporter().export(_sample_session(), tmp_path)
+    java_file = out / "Locators.java"
+    content = java_file.read_text()
+    assert "public final class Locators" in content
+    assert "public static final class Login" in content
+    assert "By.xpath(\"//input[@id='_login']\")" in content
