@@ -71,3 +71,14 @@ def test_java_exporter_generates_locators_class(tmp_path: Path):
     assert "public final class Locators" in content
     assert "public static final class Login" in content
     assert "By.xpath(\"//input[@id='_login']\")" in content
+
+
+def test_python_exporter_generates_module(tmp_path: Path):
+    from xpath_detector.exporters.python_exp import PythonExporter
+
+    out = PythonExporter().export(_sample_session(), tmp_path)
+    py_file = out / "locators.py"
+    content = py_file.read_text()
+    assert "from selenium.webdriver.common.by import By" in content
+    assert "class Login:" in content
+    assert "(By.XPATH, \"//input[@id='_login']\")" in content
