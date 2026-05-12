@@ -1,0 +1,33 @@
+{
+  "session": {
+    "id": "20251020_120000",
+    "date": "2025-10-20T12:00:00",
+    "total_screens": 1,
+    "total_elements": 1
+  },
+  "screens": {
+    "login": {
+      "url": "https://x.fr/login",
+      "title": "Login",
+      "timestamp": "2025-10-20T12:00:00",
+      "elements": [
+        {
+          "tag": "input",
+          "text": null,
+          "attributes": {"id": "_login", "type": "text"},
+          "xpaths": {
+            "absolute": "/html/body/input",
+            "relative": ["//input[@id='_login']", "//input[@type='text']"],
+            "by_text": null,
+            "by_id": "//input[@id='_login']",
+            "by_class": null,
+            "by_attributes": []
+          },
+          "is_visible": true,
+          "is_enabled": true,
+          "description": "Login field"
+        }
+      ]
+    }
+  }
+}
