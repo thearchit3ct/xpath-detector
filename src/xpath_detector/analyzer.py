@@ -58,6 +58,22 @@ def generate_candidates(
                 )
             )
 
+    if not attributes.get("id"):
+        combo_priority = ("name", "type", "role", "data-testid", "placeholder")
+        present_attrs = [a for a in combo_priority if attributes.get(a)]
+        if len(present_attrs) >= 2:
+            a1, a2 = present_attrs[0], present_attrs[1]
+            candidates.append(
+                XPathCandidate(
+                    strategy="by_attr_combo",
+                    expression=(
+                        f"//{tag}[@{a1}='{attributes[a1]}' "
+                        f"and @{a2}='{attributes[a2]}']"
+                    ),
+                    stability_score=88,
+                )
+            )
+
     if text and 0 < len(text) < 50:
         candidates.append(
             XPathCandidate(

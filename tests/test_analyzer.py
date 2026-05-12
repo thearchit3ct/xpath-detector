@@ -217,3 +217,43 @@ def test_by_id_prefix_coexists_with_by_id():
     strategies = [c.strategy for c in candidates]
     assert "by_id" in strategies
     assert "by_id_prefix" in strategies
+
+
+def test_by_attr_combo_skipped_when_id_present():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={"id": "x", "name": "amount", "type": "text"},
+    )
+    assert not any(c.strategy == "by_attr_combo" for c in candidates)
+
+
+def test_by_attr_combo_skipped_with_single_attr():
+    candidates = generate_candidates(
+        tag="input", text=None, attributes={"name": "amount"}
+    )
+    assert not any(c.strategy == "by_attr_combo" for c in candidates)
+
+
+def test_by_attr_combo_name_and_type():
+    candidates = generate_candidates(
+        tag="input", text=None, attributes={"name": "amount", "type": "text"}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_attr_combo")
+    assert cand.expression == "//input[@name='amount' and @type='text']"
+    assert cand.stability_score == 88
+
+
+def test_by_attr_combo_picks_first_two_by_priority():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={
+            "placeholder": "0.00",
+            "role": "spinbutton",
+            "name": "amount",
+            "type": "number",
+        },
+    )
+    cand = next(c for c in candidates if c.strategy == "by_attr_combo")
+    assert cand.expression == "//input[@name='amount' and @type='number']"
