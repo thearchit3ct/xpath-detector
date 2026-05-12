@@ -1,4 +1,5 @@
 """Python Selenium locators module exporter."""
+
 from pathlib import Path
 
 from xpath_detector.exporters._naming import to_constant, to_pascal

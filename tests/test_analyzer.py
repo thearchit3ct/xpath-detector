@@ -119,7 +119,7 @@ def test_generate_by_label_neighbor():
         nearby_label="Compte beneficiaire :",
     )
     cand = next(c for c in candidates if c.strategy == "by_label_neighbor")
-    assert "//span[contains(.,'Compte beneficiaire :')]/../../td/input" == cand.expression
+    assert cand.expression == "//span[contains(.,'Compte beneficiaire :')]/../../td/input"
     assert cand.stability_score == 50
 
 

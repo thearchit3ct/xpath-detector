@@ -1,4 +1,5 @@
 """Robot Framework .resource exporter."""
+
 from pathlib import Path
 
 from xpath_detector.exporters._naming import sanitize, to_var_name

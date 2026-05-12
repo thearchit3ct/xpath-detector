@@ -3,6 +3,7 @@
 Usage:
     python scripts/migrate_v1.py <input.json> <output.json>
 """
+
 from __future__ import annotations
 
 import json
@@ -36,11 +37,7 @@ def migrate(v1_data: dict) -> dict:
             "elements": out_elements,
         }
 
-    session_id = (
-        v1_data.get("session", {}).get("id")
-        or v1_data.get("id")
-        or "migrated"
-    )
+    session_id = v1_data.get("session", {}).get("id") or v1_data.get("id") or "migrated"
 
     return {"id": session_id, "screens": out_screens}
 
@@ -50,20 +47,30 @@ def _convert_xpaths(v1_xpaths: dict) -> list[dict]:
     candidates: list[dict] = []
 
     if v1_xpaths.get("by_id"):
-        candidates.append({"strategy": "by_id", "expression": v1_xpaths["by_id"], "stability_score": 95})
+        candidates.append(
+            {"strategy": "by_id", "expression": v1_xpaths["by_id"], "stability_score": 95}
+        )
     if v1_xpaths.get("by_text"):
-        candidates.append({"strategy": "by_text", "expression": v1_xpaths["by_text"], "stability_score": 70})
+        candidates.append(
+            {"strategy": "by_text", "expression": v1_xpaths["by_text"], "stability_score": 70}
+        )
     if v1_xpaths.get("by_class"):
-        candidates.append({"strategy": "by_class", "expression": v1_xpaths["by_class"], "stability_score": 60})
+        candidates.append(
+            {"strategy": "by_class", "expression": v1_xpaths["by_class"], "stability_score": 60}
+        )
 
     seen = {c["expression"] for c in candidates}
     for rel in v1_xpaths.get("relative", []):
         if rel not in seen:
-            candidates.append({"strategy": "legacy_relative", "expression": rel, "stability_score": 40})
+            candidates.append(
+                {"strategy": "legacy_relative", "expression": rel, "stability_score": 40}
+            )
             seen.add(rel)
 
     if v1_xpaths.get("absolute"):
-        candidates.append({"strategy": "absolute", "expression": v1_xpaths["absolute"], "stability_score": 10})
+        candidates.append(
+            {"strategy": "absolute", "expression": v1_xpaths["absolute"], "stability_score": 10}
+        )
 
     candidates.sort(key=lambda c: -c["stability_score"])
     return candidates

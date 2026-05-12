@@ -16,7 +16,8 @@ def test_overlay_js_listens_to_ctrl_click():
 def test_overlay_click_uses_elementfrompoint():
     """Click handler must use document.elementFromPoint for consistency with hover."""
     from xpath_detector.overlay import OVERLAY_JS
-    click_block = OVERLAY_JS[OVERLAY_JS.find("'click'"):OVERLAY_JS.find("'keydown'")]
+
+    click_block = OVERLAY_JS[OVERLAY_JS.find("'click'") : OVERLAY_JS.find("'keydown'")]
     assert "elementFromPoint" in click_block, "click handler should use elementFromPoint"
 
 

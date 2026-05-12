@@ -1,4 +1,5 @@
 """Internal naming helpers for exporters (DRY across java/python/robot)."""
+
 import re
 
 from xpath_detector.models import Element
