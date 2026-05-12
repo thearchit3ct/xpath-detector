@@ -5,8 +5,8 @@ def test_overlay_js_is_non_empty():
     assert len(OVERLAY_JS) > 100
 
 
-def test_overlay_js_contains_capture_marker():
-    assert "__XPATH_CAPTURE__" in OVERLAY_JS
+def test_overlay_js_contains_capture_queue():
+    assert "__xpath_capture_queue" in OVERLAY_JS
 
 
 def test_overlay_js_listens_to_ctrl_click():
@@ -32,3 +32,16 @@ def test_overlay_uses_label_for_attribute():
     from xpath_detector.overlay import OVERLAY_JS
 
     assert 'label[for="' in OVERLAY_JS or "label[for=" in OVERLAY_JS
+
+
+def test_overlay_uses_queue_instead_of_console_log():
+    from xpath_detector.overlay import OVERLAY_JS
+
+    assert "__xpath_capture_queue" in OVERLAY_JS
+    assert "console.log('__XPATH_CAPTURE__'" not in OVERLAY_JS
+
+
+def test_overlay_queue_initialized_idempotent():
+    from xpath_detector.overlay import OVERLAY_JS
+
+    assert "window.__xpath_capture_queue = window.__xpath_capture_queue || []" in OVERLAY_JS

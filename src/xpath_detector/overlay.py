@@ -72,7 +72,8 @@ OVERLAY_JS = r"""
             is_visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
             is_enabled: !el.disabled,
         };
-        console.log('__XPATH_CAPTURE__' + JSON.stringify(data));
+        window.__xpath_capture_queue = window.__xpath_capture_queue || [];
+        window.__xpath_capture_queue.push(data);
     }, true);
 
     document.addEventListener('keydown', (e) => {
