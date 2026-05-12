@@ -1,4 +1,5 @@
 """XPath candidate generation with stability scoring."""
+
 from __future__ import annotations
 
 from xpath_detector.models import XPathCandidate
@@ -10,7 +11,7 @@ def escape_xpath_literal(value: str) -> str:
         return f"'{value}'"
     parts = value.split("'")
     quoted = [f"'{p}'" for p in parts]
-    return "concat(" + ", \"'\", ".join(quoted) + ")"
+    return "concat(" + ', "\'", '.join(quoted) + ")"
 
 
 def generate_candidates(
@@ -22,7 +23,7 @@ def generate_candidates(
     """Genere une liste de candidats xpath tries par score decroissant."""
     candidates: list[XPathCandidate] = []
 
-    if "id" in attributes and attributes["id"]:
+    if attributes.get("id"):
         candidates.append(
             XPathCandidate(
                 strategy="by_id",
@@ -36,7 +37,7 @@ def generate_candidates(
         ("name", "by_name", 80),
         ("aria-label", "by_aria_label", 75),
     ]:
-        if attr in attributes and attributes[attr]:
+        if attributes.get(attr):
             candidates.append(
                 XPathCandidate(
                     strategy=strategy,
@@ -54,7 +55,7 @@ def generate_candidates(
             )
         )
 
-    if "class" in attributes and attributes["class"]:
+    if attributes.get("class"):
         classes = attributes["class"].split()
         if classes:
             first_class = classes[0]

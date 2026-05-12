@@ -1,4 +1,5 @@
 """Entry point for xpath-detector."""
+
 import logging
 
 from xpath_detector.shell import Shell

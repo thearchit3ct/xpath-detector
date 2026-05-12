@@ -1,4 +1,5 @@
 """Interactive shell."""
+
 from __future__ import annotations
 
 import logging
@@ -50,7 +51,9 @@ class Shell:
     def run(self) -> None:
         self.browser.start()
         self.console.print("[bold green]xpath-detector started.[/bold green]")
-        self.console.print("Commands: open <url>, screen <name>, list, show, export <format>, save, quit")
+        self.console.print(
+            "Commands: open <url>, screen <name>, list, show, export <format>, save, quit"
+        )
 
         while self.running:
             try:
@@ -152,7 +155,9 @@ class Shell:
 
     def _on_capture(self, data: dict[str, Any]) -> None:
         if not self.current_screen:
-            self.console.print("[yellow]No current screen, capture ignored. Use 'screen <name>' first.[/yellow]")
+            self.console.print(
+                "[yellow]No current screen, capture ignored. Use 'screen <name>' first.[/yellow]"
+            )
             return
         desc = self.console.input("[cyan]Description (Enter to skip): [/cyan]")
         xpaths = generate_candidates(

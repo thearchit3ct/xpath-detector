@@ -1,4 +1,5 @@
 """Robot Framework .resource exporter."""
+
 import re
 from pathlib import Path
 

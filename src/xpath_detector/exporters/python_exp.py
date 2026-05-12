@@ -1,4 +1,5 @@
 """Python Selenium locators module exporter."""
+
 import re
 from pathlib import Path
 

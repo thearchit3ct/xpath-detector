@@ -1,17 +1,15 @@
+from datetime import datetime
+from pathlib import Path
+
 import pytest
 
 from xpath_detector.exporters.base import Exporter
+from xpath_detector.models import Element, Screen, Session, XPathCandidate
 
 
 def test_exporter_is_abstract():
     with pytest.raises(TypeError):
         Exporter()
-
-
-from datetime import datetime
-from pathlib import Path
-
-from xpath_detector.models import Element, Screen, Session, XPathCandidate
 
 
 def _sample_session() -> Session:
@@ -41,6 +39,7 @@ def _sample_session() -> Session:
 
 def test_json_exporter_creates_file(tmp_path: Path):
     import json
+
     from xpath_detector.exporters.json_exp import JsonExporter
 
     exporter = JsonExporter()

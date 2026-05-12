@@ -1,4 +1,5 @@
 """JSON exporter."""
+
 import json
 from pathlib import Path
 

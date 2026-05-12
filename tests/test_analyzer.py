@@ -1,5 +1,4 @@
 from xpath_detector.analyzer import escape_xpath_literal, generate_candidates
-from xpath_detector.models import XPathCandidate
 
 
 def test_generate_by_id():

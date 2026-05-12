@@ -1,4 +1,5 @@
 """Playwright sync browser wrapper."""
+
 from __future__ import annotations
 
 import json
@@ -59,7 +60,7 @@ class BrowserController:
         text = msg.text
         if not text.startswith(_CAPTURE_PREFIX):
             return
-        payload = text[len(_CAPTURE_PREFIX):]
+        payload = text[len(_CAPTURE_PREFIX) :]
         try:
             data = json.loads(payload)
         except json.JSONDecodeError:

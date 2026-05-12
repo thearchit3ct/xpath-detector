@@ -1,4 +1,5 @@
 """HTML report exporter with proper escaping."""
+
 from html import escape
 from pathlib import Path
 

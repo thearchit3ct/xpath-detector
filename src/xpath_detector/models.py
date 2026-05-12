@@ -1,4 +1,5 @@
 """Immutable data model for sessions, screens, elements, xpaths."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

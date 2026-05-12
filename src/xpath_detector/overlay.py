@@ -89,7 +89,8 @@ OVERLAY_JS = r"""
         const siblings = el.parentNode ? el.parentNode.childNodes : [];
         for (const sibling of siblings) {
             if (sibling === el) {
-                return getAbsoluteXPath(el.parentNode) + '/' + el.tagName.toLowerCase() + '[' + (ix + 1) + ']';
+                const parent = getAbsoluteXPath(el.parentNode);
+                return parent + '/' + el.tagName.toLowerCase() + '[' + (ix + 1) + ']';
             }
             if (sibling.nodeType === 1 && sibling.tagName === el.tagName) ix++;
         }

@@ -1,4 +1,5 @@
 """Java Selenium Locators class exporter."""
+
 import re
 from pathlib import Path
 

@@ -1,4 +1,5 @@
 """Session persistence (save/load JSON)."""
+
 from __future__ import annotations
 
 import json
