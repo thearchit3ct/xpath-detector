@@ -2,6 +2,29 @@
 
 All notable changes to xpath-detector are documented here.
 
+## [1.2.0] - 2026-05-12
+
+### Added
+- Selenium browser backend as default (corporate-friendly, uses system Chrome, no binary download)
+- `XPATH_DETECTOR_BACKEND` environment variable to switch between `selenium` (default) and `playwright`
+- Factory function `create_backend()` and abstract `BrowserBackend` interface in `xpath_detector.browser`
+- Background thread-based polling of `window.__xpath_capture_queue` (uniform between backends)
+
+### Changed
+- Browser communication replaced `console.log("__XPATH_CAPTURE__...")` with `window.__xpath_capture_queue` push + polling
+- Playwright moved to optional extra: `pip install xpath-detector[playwright]`
+- Old `browser.py` module reorganized into `browser/` package with separate `selenium_backend.py` and `playwright_backend.py`
+
+### Migration
+
+No session format changes. Sessions from v1.0 and v1.1 remain readable.
+
+For users who installed v1.1 with Playwright:
+- v1.2 default works with Selenium (no Playwright required)
+- To keep using Playwright: install with `[playwright]` extra and set `XPATH_DETECTOR_BACKEND=playwright`
+
+Legacy import `from xpath_detector.browser import BrowserController` continues to work (returns a backend instance via the default selection).
+
 ## [1.1.0] - 2026-05-12
 
 ### Fixed
