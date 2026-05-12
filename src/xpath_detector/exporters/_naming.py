@@ -26,3 +26,16 @@ def to_var_name(element: Element) -> str:
     """Generate a Robot ${VAR} name (30 char max)."""
     base = element.description or element.text or element.attributes.get("name") or element.tag
     return sanitize(base).upper()[:30]
+
+
+def dedup_name(name: str, seen: dict[str, int]) -> str:
+    """Return a unique name by appending _2, _3, ... if already in `seen`.
+
+    Mutates `seen` to track the next available suffix. First call with a given
+    name returns it unchanged. Subsequent calls return name_2, name_3, etc.
+    """
+    if name not in seen:
+        seen[name] = 1
+        return name
+    seen[name] += 1
+    return f"{name}_{seen[name]}"

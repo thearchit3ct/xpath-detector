@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from xpath_detector.exporters._naming import to_constant, to_pascal
+from xpath_detector.exporters._naming import dedup_name, to_constant, to_pascal
 from xpath_detector.exporters.base import Exporter
 from xpath_detector.models import Session
 
@@ -30,11 +30,12 @@ class JavaExporter(Exporter):
             class_name = to_pascal(screen_name)
             lines.append(f"    public static final class {class_name} {{")
             lines.append(f"        private {class_name}() {{}}")
+            seen: dict[str, int] = {}
             for el in screen.elements:
                 if not el.xpaths:
                     continue
                 best = el.xpaths[0]
-                var = to_constant(el)
+                var = dedup_name(to_constant(el), seen)
                 escaped = best.expression.replace('"', '\\"')
                 lines.append(f'        public static final By {var} = By.xpath("{escaped}");')
             lines.append("    }")

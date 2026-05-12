@@ -77,11 +77,10 @@ def test_on_capture_adds_element_to_current_screen(shell_no_browser):
     assert any(c.strategy == "by_label_neighbor" for c in el.xpaths)
 
 
-def test_default_description_priority():
-    """Auto-generated description prefers nearby_label > text > id > name > aria-label > tag."""
+def test_default_description_input_prefers_nearby_label():
+    """For input/select/textarea: nearby_label wins over text."""
     from xpath_detector.shell import _default_description
 
-    # nearby_label wins
     assert (
         _default_description(
             {
@@ -94,13 +93,47 @@ def test_default_description_priority():
         == "Montant :"
     )
 
-    # text wins over id when nearby_label absent
+
+def test_default_description_button_prefers_own_text():
+    """For non-form elements (button, a): text wins over nearby_label.
+
+    The findNearbyLabel JS algorithm may pick up a label that's not actually
+    associated (e.g., first span in form). The element's own text is more reliable.
+    """
+    from xpath_detector.shell import _default_description
+
+    # button with own text 'Valider' should NOT inherit 'Montant :' from a stray span
     assert (
-        _default_description({"tag": "a", "text": "Click here", "attributes": {"id": "x"}})
+        _default_description(
+            {
+                "tag": "button",
+                "text": "Valider",
+                "attributes": {"id": "btn-submit"},
+                "nearby_label": "Montant :",
+            }
+        )
+        == "Valider"
+    )
+
+    # link
+    assert (
+        _default_description(
+            {
+                "tag": "a",
+                "text": "Click here",
+                "attributes": {"id": "x"},
+                "nearby_label": "Some Label",
+            }
+        )
         == "Click here"
     )
 
-    # id used when text empty
+
+def test_default_description_fallbacks():
+    """Fallback chain: id > name > aria-label > tag."""
+    from xpath_detector.shell import _default_description
+
+    # id used when text empty and no nearby_label
     assert (
         _default_description({"tag": "input", "text": "", "attributes": {"id": "login"}})
         == "input#login"

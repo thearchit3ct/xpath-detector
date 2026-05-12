@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from xpath_detector.exporters._naming import to_constant, to_pascal
+from xpath_detector.exporters._naming import dedup_name, to_constant, to_pascal
 from xpath_detector.exporters.base import Exporter
 from xpath_detector.models import Session
 
@@ -28,11 +28,12 @@ class PythonExporter(Exporter):
             class_name = to_pascal(screen_name)
             lines.append(f"class {class_name}:")
             has_any = False
+            seen: dict[str, int] = {}
             for el in screen.elements:
                 if not el.xpaths:
                     continue
                 best = el.xpaths[0]
-                var = to_constant(el)
+                var = dedup_name(to_constant(el), seen)
                 escaped = best.expression.replace('"', '\\"')
                 lines.append(f'    {var} = (By.XPATH, "{escaped}")')
                 has_any = True

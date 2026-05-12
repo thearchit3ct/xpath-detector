@@ -17,3 +17,7 @@ exports/
 .vscode/
 .DS_Store
 **/.DS_Store
+
+# Legacy v0 files kept for reference, not part of the package
+/interactive_shell.py
+/xpath_detective.py

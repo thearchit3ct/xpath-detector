@@ -1,4 +1,10 @@
-from xpath_detector.exporters._naming import sanitize, to_constant, to_pascal, to_var_name
+from xpath_detector.exporters._naming import (
+    dedup_name,
+    sanitize,
+    to_constant,
+    to_pascal,
+    to_var_name,
+)
 from xpath_detector.models import Element, XPathCandidate
 
 
@@ -58,3 +64,17 @@ def test_to_constant_falls_back_to_tag():
 def test_to_var_name_max_30_chars():
     el = _elem(description="a" * 100)
     assert len(to_var_name(el)) <= 30
+
+
+def test_dedup_name_first_occurrence_unchanged():
+    seen: dict[str, int] = {}
+    assert dedup_name("MONTANT", seen) == "MONTANT"
+
+
+def test_dedup_name_appends_suffix():
+    seen: dict[str, int] = {}
+    assert dedup_name("VAR", seen) == "VAR"
+    assert dedup_name("VAR", seen) == "VAR_2"
+    assert dedup_name("VAR", seen) == "VAR_3"
+    assert dedup_name("OTHER", seen) == "OTHER"
+    assert dedup_name("VAR", seen) == "VAR_4"

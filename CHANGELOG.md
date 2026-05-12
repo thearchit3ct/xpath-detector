@@ -2,6 +2,24 @@
 
 All notable changes to xpath-detector are documented here.
 
+## [1.2.2] - 2026-05-12
+
+### Fixed
+- **Critical**: Java/Python/Robot exporters generated duplicate constant names when
+  multiple captured elements shared the same description. The generated Java code
+  was uncompilable (duplicate `public static final By X` declarations). Exporters
+  now append `_2`, `_3`, ... to make names unique within a screen.
+- Auto-description picked wrong label for buttons/links. `findNearbyLabel` JS walks
+  up DOM ancestors and may return the first preceding span, which for a button at
+  the bottom of a form is not its real label. Auto-description now prefers the
+  element's own `text` for buttons/links/etc., reserving `nearby_label` priority for
+  form inputs (input/select/textarea) where the visible label is the field name.
+
+### Added
+- `dedup_name(name, seen)` helper in `exporters/_naming.py` (shared between
+  Java/Python/Robot exporters).
+- Regression tests for duplicate constant names across all 3 code-generating exporters.
+
 ## [1.2.1] - 2026-05-12
 
 ### Fixed

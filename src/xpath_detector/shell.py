@@ -228,17 +228,38 @@ class Shell:
 
 
 def _default_description(data: dict[str, Any]) -> str:
-    """Auto-generate a sensible default description from captured data."""
+    """Auto-generate a sensible default description from captured data.
+
+    Priority depends on element type:
+    - Form inputs (input/select/textarea): nearby_label > text > id > name > aria-label > tag
+    - Other elements (button, a, etc.): text > nearby_label > id > name > aria-label > tag
+
+    Rationale: a button's own text is its label. The findNearbyLabel JS algorithm
+    walks up ancestors and may return a label that's not actually associated with
+    the element (e.g., the first span in the same form).
+    """
     attrs = data.get("attributes", {}) or {}
-    if data.get("nearby_label"):
-        return data["nearby_label"].strip()
+    tag = data.get("tag", "element")
     text = (data.get("text") or "").strip()
-    if text and len(text) < 40:
-        return text
+    nearby_label = (data.get("nearby_label") or "").strip()
+
+    is_form_field = tag in ("input", "select", "textarea")
+
+    if is_form_field:
+        if nearby_label:
+            return nearby_label
+        if text and len(text) < 40:
+            return text
+    else:
+        if text and len(text) < 40:
+            return text
+        if nearby_label:
+            return nearby_label
+
     if attrs.get("id"):
-        return f"{data.get('tag', 'element')}#{attrs['id']}"
+        return f"{tag}#{attrs['id']}"
     if attrs.get("name"):
-        return f"{data.get('tag', 'element')}[name={attrs['name']}]"
+        return f"{tag}[name={attrs['name']}]"
     if attrs.get("aria-label"):
         return attrs["aria-label"].strip()
-    return data.get("tag", "element")
+    return tag

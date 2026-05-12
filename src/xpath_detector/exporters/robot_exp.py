@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from xpath_detector.exporters._naming import sanitize, to_var_name
+from xpath_detector.exporters._naming import dedup_name, sanitize, to_var_name
 from xpath_detector.exporters.base import Exporter
 from xpath_detector.models import Element, Session
 
@@ -31,10 +31,11 @@ class RobotExporter(Exporter):
             "",
             "*** Variables ***",
         ]
+        seen: dict[str, int] = {}
         for el in elements:
             if not el.xpaths:
                 continue
             best = el.xpaths[0]
-            var = to_var_name(el)
+            var = dedup_name(to_var_name(el), seen)
             lines.append(f"${{{var}}}    {best.expression}")
         return "\n".join(lines) + "\n"

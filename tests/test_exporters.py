@@ -102,3 +102,69 @@ def test_html_exporter_contains_session_info(tmp_path: Path):
     content = out.read_text()
     assert "20260512_120000" in content
     assert "login" in content
+
+
+def _session_with_duplicate_descriptions() -> Session:
+    """Two elements producing the same CONSTANT name (regression test v1.2.2)."""
+    return Session(
+        id="dup_test",
+        screens={
+            "form": Screen(
+                name="form",
+                url="x",
+                title="t",
+                timestamp=datetime(2026, 5, 12, 12, 0, 0),
+                elements=[
+                    Element(
+                        tag="input",
+                        text=None,
+                        attributes={"id": "a"},
+                        xpaths=[XPathCandidate("by_id", "//input[@id='a']", 95)],
+                        is_visible=True,
+                        is_enabled=True,
+                        description="Montant",
+                    ),
+                    Element(
+                        tag="button",
+                        text=None,
+                        attributes={"id": "b"},
+                        xpaths=[XPathCandidate("by_id", "//button[@id='b']", 95)],
+                        is_visible=True,
+                        is_enabled=True,
+                        description="Montant",
+                    ),
+                ],
+            )
+        },
+    )
+
+
+def test_java_exporter_deduplicates_constant_names(tmp_path: Path):
+    """Java exporter must not generate duplicate `public static final By X` declarations."""
+    from xpath_detector.exporters.java_exp import JavaExporter
+
+    out = JavaExporter().export(_session_with_duplicate_descriptions(), tmp_path)
+    content = (out / "Locators.java").read_text()
+    assert "public static final By MONTANT = " in content
+    assert "public static final By MONTANT_2 = " in content
+    decls = [line for line in content.splitlines() if "public static final By" in line]
+    names = [line.split()[4] for line in decls]
+    assert len(names) == len(set(names)), f"Duplicate names in: {names}"
+
+
+def test_python_exporter_deduplicates(tmp_path: Path):
+    from xpath_detector.exporters.python_exp import PythonExporter
+
+    out = PythonExporter().export(_session_with_duplicate_descriptions(), tmp_path)
+    content = (out / "locators.py").read_text()
+    assert "MONTANT = (By.XPATH," in content
+    assert "MONTANT_2 = (By.XPATH," in content
+
+
+def test_robot_exporter_deduplicates(tmp_path: Path):
+    from xpath_detector.exporters.robot_exp import RobotExporter
+
+    out = RobotExporter().export(_session_with_duplicate_descriptions(), tmp_path)
+    content = (out / "form" / "locators.resource").read_text()
+    assert "${MONTANT}" in content
+    assert "${MONTANT_2}" in content
