@@ -30,5 +30,19 @@ def generate_candidates(
             )
         )
 
+    for attr, strategy, score in [
+        ("data-testid", "by_data_testid", 90),
+        ("name", "by_name", 80),
+        ("aria-label", "by_aria_label", 75),
+    ]:
+        if attr in attributes and attributes[attr]:
+            candidates.append(
+                XPathCandidate(
+                    strategy=strategy,
+                    expression=f"//{tag}[@{attr}='{attributes[attr]}']",
+                    stability_score=score,
+                )
+            )
+
     candidates.sort(key=lambda c: -c.stability_score)
     return candidates
