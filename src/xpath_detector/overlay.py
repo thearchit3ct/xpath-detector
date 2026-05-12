@@ -68,6 +68,7 @@ OVERLAY_JS = r"""
             text: (el.textContent || '').trim().slice(0, 200),
             attributes: attrs,
             absolute_xpath: getAbsoluteXPath(el),
+            nearby_label: findNearbyLabel(el),
             is_visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
             is_enabled: !el.disabled,
         };
@@ -81,6 +82,37 @@ OVERLAY_JS = r"""
             hideTooltip();
         }
     });
+
+    function findNearbyLabel(el) {
+        // 1. <label for="id"> via attribute
+        if (el.id) {
+            const lbl = document.querySelector('label[for="' + el.id + '"]');
+            if (lbl) {
+                const t = lbl.textContent.trim();
+                if (t && t.length < 50) return t;
+            }
+        }
+        // 2. Ancestor <label>
+        const ancestor = el.closest('label');
+        if (ancestor) {
+            const t = ancestor.textContent.trim();
+            if (t && t.length < 50) return t;
+        }
+        // 3. First preceding <span>/<label> within 3 ancestor levels
+        let parent = el.parentElement;
+        for (let depth = 0; parent && depth < 3; depth++) {
+            const lbls = parent.querySelectorAll('span, label');
+            for (const lbl of lbls) {
+                const t = lbl.textContent.trim();
+                if (t && t.length < 50 &&
+                    (lbl.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+                    return t;
+                }
+            }
+            parent = parent.parentElement;
+        }
+        return null;
+    }
 
     function getAbsoluteXPath(el) {
         if (el.id) return '//*[@id="' + el.id + '"]';
