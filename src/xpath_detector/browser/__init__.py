@@ -1,4 +1,5 @@
 """Browser backends — Selenium (default) or Playwright (optional)."""
+
 from __future__ import annotations
 
 import os
@@ -17,9 +18,7 @@ def create_backend(name: str | None = None) -> BrowserBackend:
         from xpath_detector.browser.playwright_backend import PlaywrightBackend
 
         return PlaywrightBackend()
-    raise ValueError(
-        f"Unknown backend: {name}. Expected 'selenium' or 'playwright'."
-    )
+    raise ValueError(f"Unknown backend: {name}. Expected 'selenium' or 'playwright'.")
 
 
 def BrowserController() -> BrowserBackend:

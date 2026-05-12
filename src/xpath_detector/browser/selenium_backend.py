@@ -1,4 +1,5 @@
 """Selenium WebDriver backend (default, corporate-friendly)."""
+
 from __future__ import annotations
 
 import logging
