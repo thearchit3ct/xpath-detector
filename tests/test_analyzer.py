@@ -336,3 +336,57 @@ def test_by_text_normalized_skipped_if_empty_or_long():
         tag="div", text="a" * 80, attributes={}
     )
     assert not any(c.strategy == "by_text_normalized" for c in candidates)
+
+
+def test_full_strategy_set_for_dynamic_field():
+    """Verify all relevant strategies fire for a realistic dynamic form field."""
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={
+            "id": "vpu_amount_20260512",
+            "name": "amount",
+            "type": "text",
+            "class": "form-control",
+        },
+        absolute_xpath="/html/body/form/table/tr[1]/td[2]/input",
+        nearby_label="Montant :",
+    )
+    strategies = {c.strategy for c in candidates}
+    assert "by_id" in strategies
+    assert "by_id_prefix" in strategies
+    assert "by_name" in strategies
+    assert "by_label_for" in strategies
+    assert "by_class" in strategies
+    assert "by_label_neighbor" in strategies
+    assert "absolute" in strategies
+
+
+def test_score_order_after_v13_additions():
+    """Verify candidates are sorted by stability_score desc."""
+    candidates = generate_candidates(
+        tag="input",
+        text="Submit",
+        attributes={
+            "id": "vpu_x_123",
+            "data-testid": "submit-btn",
+            "name": "submit",
+            "type": "text",
+            "aria-label": "Send",
+            "class": "primary",
+        },
+        absolute_xpath="/html/body/x",
+        nearby_label="Submit :",
+    )
+    scores = [c.stability_score for c in candidates]
+    assert scores == sorted(scores, reverse=True), f"Not sorted: {scores}"
+
+
+def test_by_class_no_longer_buggy_for_substring():
+    """Regression test for the v1.3 by_class fix."""
+    candidates = generate_candidates(
+        tag="button", text=None, attributes={"class": "btn"}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_class")
+    assert cand.expression != "//button[contains(@class,'btn')]"
+    assert "normalize-space(@class)" in cand.expression
