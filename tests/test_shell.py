@@ -12,8 +12,8 @@ from xpath_detector.models import Screen, Session
 @pytest.fixture
 def shell_no_browser():
     """Shell with mocked BrowserController."""
-    with patch("xpath_detector.shell.BrowserController") as mock_browser_class:
-        mock_browser_class.return_value = MagicMock()
+    with patch("xpath_detector.shell.create_backend") as mock_factory:
+        mock_factory.return_value = MagicMock()
         from xpath_detector.shell import Shell
 
         shell = Shell()

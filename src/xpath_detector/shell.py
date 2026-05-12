@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from xpath_detector.analyzer import generate_candidates
-from xpath_detector.browser import BrowserController
+from xpath_detector.browser import create_backend
 from xpath_detector.exporters.base import Exporter
 from xpath_detector.models import Element, Screen, Session
 from xpath_detector.session import load_session, save_session
@@ -43,7 +43,7 @@ class Shell:
         self.console = Console()
         self.session = Session(id=datetime.now().strftime("%Y%m%d_%H%M%S"))
         self.current_screen: str | None = None
-        self.browser = BrowserController()
+        self.browser = create_backend()
         self.exporters = _load_exporters()
         self.running = True
         self.browser.on_capture(self._on_capture)
