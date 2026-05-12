@@ -2,6 +2,30 @@
 
 All notable changes to xpath-detector are documented here.
 
+## [1.3.0] - 2026-05-13
+
+### Fixed
+- **`by_class` generated xpath with substring false positives**. Pattern was
+  `contains(@class,'btn')` which also matched `class="btn-secondary"`. Now uses
+  the safe pattern `contains(concat(' ', normalize-space(@class), ' '), ' btn ')`.
+
+### Added
+- **`by_id_prefix` strategy** (score 85): generates `starts-with(@id,'prefix')`
+  when an id appears dynamic (suffix is pure digits, uuid-like, or date-like).
+  Tests no longer break when the app generates timestamped/uuid IDs at runtime.
+- **`by_attr_combo` strategy** (score 88): combines 2 attributes with `and`
+  when no `id` is present. More discriminating than single-attribute selectors.
+  Priority order: name > type > role > data-testid > placeholder.
+- **`by_label_for` strategy** (score 78): canonical HTML form pattern
+  `//*[@id=//label[contains(.,'X')]/@for]`. Robust when the page uses the
+  standard `<label for="id">` association.
+- **`by_text_normalized` strategy** (score 72): `normalize-space()='X'` exact
+  match after whitespace normalization. More specific than `contains()` substring.
+
+### XPath coverage vs devhints.io/xpath
+- Before v1.3 : 6/22 patterns (~27%)
+- After v1.3 : 11/22 patterns (~50%) + safer existing patterns
+
 ## [1.2.3] - 2026-05-12
 
 ### Fixed
