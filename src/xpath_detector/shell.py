@@ -173,12 +173,12 @@ class Shell:
         )
 
     def _on_capture(self, data: dict[str, Any]) -> None:
+        """Called from poll thread. MUST NOT call console.input() (deadlocks main loop)."""
         if not self.current_screen:
             self.console.print(
                 "[yellow]No current screen, capture ignored. Use 'screen <name>' first.[/yellow]"
             )
             return
-        desc = self.console.input("[cyan]Description (Enter to skip): [/cyan]")
         xpaths = generate_candidates(
             tag=data["tag"],
             text=data.get("text"),
@@ -186,6 +186,7 @@ class Shell:
             absolute_xpath=data.get("absolute_xpath"),
             nearby_label=data.get("nearby_label"),
         )
+        description = _default_description(data)
         element = Element(
             tag=data["tag"],
             text=data.get("text"),
@@ -193,8 +194,51 @@ class Shell:
             xpaths=xpaths,
             is_visible=data.get("is_visible", True),
             is_enabled=data.get("is_enabled", True),
-            description=desc,
+            description=description,
         )
-        self.session.screens[self.current_screen].elements.append(element)
+        elements = self.session.screens[self.current_screen].elements
+        elements.append(element)
+        index = len(elements) - 1
         best = xpaths[0].expression if xpaths else "-"
-        self.console.print(f"[green]Captured {element.tag} -> {best}[/green]")
+        self.console.print(
+            f"\n[green]Captured [{index}] {element.tag} '{description}' -> {best}[/green]"
+        )
+        self.console.print(f"[dim]Use 'describe {index} <text>' to rename.[/dim]")
+
+    def cmd_describe(self, args: list[str]) -> None:
+        """Update the description of an existing capture by index."""
+        if len(args) < 2:
+            self.console.print("[red]Usage: describe <index> <new description>[/red]")
+            return
+        if not self.current_screen:
+            self.console.print("[red]No current screen[/red]")
+            return
+        try:
+            index = int(args[0])
+        except ValueError:
+            self.console.print(f"[red]Invalid index: {args[0]}[/red]")
+            return
+        elements = self.session.screens[self.current_screen].elements
+        if not (0 <= index < len(elements)):
+            self.console.print(f"[red]Index {index} out of range (0-{len(elements) - 1})[/red]")
+            return
+        new_desc = " ".join(args[1:])
+        elements[index].description = new_desc
+        self.console.print(f"[green]Updated [{index}]: {new_desc}[/green]")
+
+
+def _default_description(data: dict[str, Any]) -> str:
+    """Auto-generate a sensible default description from captured data."""
+    attrs = data.get("attributes", {}) or {}
+    if data.get("nearby_label"):
+        return data["nearby_label"].strip()
+    text = (data.get("text") or "").strip()
+    if text and len(text) < 40:
+        return text
+    if attrs.get("id"):
+        return f"{data.get('tag', 'element')}#{attrs['id']}"
+    if attrs.get("name"):
+        return f"{data.get('tag', 'element')}[name={attrs['name']}]"
+    if attrs.get("aria-label"):
+        return attrs["aria-label"].strip()
+    return data.get("tag", "element")
