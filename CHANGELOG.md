@@ -2,6 +2,24 @@
 
 All notable changes to xpath-detector are documented here.
 
+## [1.2.1] - 2026-05-12
+
+### Fixed
+- **Critical**: capture deadlock in interactive shell. `_on_capture` (called from
+  poll thread) was calling `console.input()` for the description prompt while the
+  main `run()` loop was also blocked on `console.input()` for the next command.
+  The two threads competed for stdin, leaving captures silently dropped or the
+  shell unresponsive.
+
+### Changed
+- `_on_capture` no longer prompts for description. Auto-generates one from
+  captured data (priority: `nearby_label` > `text` > `id` > `name` >
+  `aria-label` > tag fallback).
+
+### Added
+- New shell command `describe <index> <new description>` to rename a previously
+  captured element after the fact.
+
 ## [1.2.0] - 2026-05-12
 
 ### Added
