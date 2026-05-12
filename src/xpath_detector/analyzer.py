@@ -17,6 +17,7 @@ def generate_candidates(
     tag: str,
     text: str | None,
     attributes: dict[str, str],
+    absolute_xpath: str | None = None,
 ) -> list[XPathCandidate]:
     """Genere une liste de candidats xpath tries par score decroissant."""
     candidates: list[XPathCandidate] = []
@@ -50,6 +51,27 @@ def generate_candidates(
                 strategy="by_text",
                 expression=f"//{tag}[contains(.,{escape_xpath_literal(text)})]",
                 stability_score=70,
+            )
+        )
+
+    if "class" in attributes and attributes["class"]:
+        classes = attributes["class"].split()
+        if classes:
+            first_class = classes[0]
+            candidates.append(
+                XPathCandidate(
+                    strategy="by_class",
+                    expression=f"//{tag}[contains(@class,'{first_class}')]",
+                    stability_score=60,
+                )
+            )
+
+    if absolute_xpath:
+        candidates.append(
+            XPathCandidate(
+                strategy="absolute",
+                expression=absolute_xpath,
+                stability_score=10,
             )
         )
 

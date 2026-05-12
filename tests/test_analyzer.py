@@ -65,3 +65,29 @@ def test_by_text_skipped_if_too_long():
 def test_by_text_skipped_if_empty():
     candidates = generate_candidates(tag="div", text="", attributes={})
     assert not any(c.strategy == "by_text" for c in candidates)
+
+
+def test_generate_by_class():
+    candidates = generate_candidates(tag="button", text=None, attributes={"class": "btn-primary"})
+    cand = next(c for c in candidates if c.strategy == "by_class")
+    assert "contains(@class,'btn-primary')" in cand.expression
+    assert cand.stability_score == 60
+
+
+def test_generate_absolute_fallback():
+    candidates = generate_candidates(
+        tag="div", text=None, attributes={}, absolute_xpath="/html/body/div[3]"
+    )
+    cand = next(c for c in candidates if c.strategy == "absolute")
+    assert cand.expression == "/html/body/div[3]"
+    assert cand.stability_score == 10
+
+
+def test_candidates_sorted_by_score_desc():
+    candidates = generate_candidates(
+        tag="input",
+        text="Login",
+        attributes={"id": "x", "name": "y", "class": "z"},
+    )
+    scores = [c.stability_score for c in candidates]
+    assert scores == sorted(scores, reverse=True)
