@@ -88,6 +88,15 @@ def generate_candidates(
     if text and 0 < len(text) < 50:
         candidates.append(
             XPathCandidate(
+                strategy="by_text_normalized",
+                expression=f"//{tag}[normalize-space()={escape_xpath_literal(text)}]",
+                stability_score=72,
+            )
+        )
+
+    if text and 0 < len(text) < 50:
+        candidates.append(
+            XPathCandidate(
                 strategy="by_text",
                 expression=f"//{tag}[contains(.,{escape_xpath_literal(text)})]",
                 stability_score=70,

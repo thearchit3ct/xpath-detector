@@ -300,3 +300,39 @@ def test_by_label_for_escapes_apostrophe():
     )
     cand = next(c for c in candidates if c.strategy == "by_label_for")
     assert "concat(" in cand.expression
+
+
+def test_by_text_normalized_generated():
+    candidates = generate_candidates(
+        tag="button", text="Valider", attributes={}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_text_normalized")
+    assert cand.expression == "//button[normalize-space()='Valider']"
+    assert cand.stability_score == 72
+
+
+def test_by_text_normalized_coexists_with_by_text():
+    candidates = generate_candidates(
+        tag="a", text="Login", attributes={}
+    )
+    strategies = [c.strategy for c in candidates]
+    assert "by_text_normalized" in strategies
+    assert "by_text" in strategies
+
+
+def test_by_text_normalized_escapes_apostrophe():
+    candidates = generate_candidates(
+        tag="a", text="L'utilisateur", attributes={}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_text_normalized")
+    assert "concat(" in cand.expression
+
+
+def test_by_text_normalized_skipped_if_empty_or_long():
+    candidates = generate_candidates(tag="div", text="", attributes={})
+    assert not any(c.strategy == "by_text_normalized" for c in candidates)
+
+    candidates = generate_candidates(
+        tag="div", text="a" * 80, attributes={}
+    )
+    assert not any(c.strategy == "by_text_normalized" for c in candidates)
