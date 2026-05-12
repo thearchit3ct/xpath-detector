@@ -51,9 +51,7 @@ class Shell:
     def run(self) -> None:
         self.browser.start()
         self.console.print("[bold green]xpath-detector started.[/bold green]")
-        self.console.print(
-            "Commands: open <url>, screen <name>, list, show, export <format>, save, quit"
-        )
+        self.console.print("Type [bold]help[/bold] for available commands.")
 
         while self.running:
             try:
@@ -152,6 +150,27 @@ class Shell:
 
     def cmd_quit(self, args: list[str]) -> None:
         self.running = False
+
+    def cmd_help(self, args: list[str]) -> None:
+        table = Table(title="Available commands")
+        table.add_column("Command")
+        table.add_column("Description")
+        for cmd, desc in [
+            ("open <url>", "Navigate to a URL"),
+            ("screen <name>", "Create or switch to a screen"),
+            ("list", "Show all captured screens"),
+            ("show", "Show elements in current screen"),
+            ("export <format>", "Export to format (json/html/robot/java/python/all)"),
+            ("save", "Save session to sessions/<id>.json"),
+            ("load <path>", "Load a session from JSON file"),
+            ("help", "Show this help"),
+            ("quit", "Exit xpath-detector"),
+        ]:
+            table.add_row(cmd, desc)
+        self.console.print(table)
+        self.console.print(
+            "[dim]In the browser: hover to highlight, Ctrl+click to capture, Esc to toggle.[/dim]"
+        )
 
     def _on_capture(self, data: dict[str, Any]) -> None:
         if not self.current_screen:
