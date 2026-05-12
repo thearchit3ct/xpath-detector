@@ -15,3 +15,5 @@ exports/
 .ruff_cache/
 .idea/
 .vscode/
+.DS_Store
+**/.DS_Store
