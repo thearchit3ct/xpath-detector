@@ -110,12 +110,12 @@ exports/
 ```yaml
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.0
+    rev: v0.6.9
     hooks:
       - id: ruff
         args: [--fix]
   - repo: https://github.com/psf/black
-    rev: 24.0.0
+    rev: 24.10.0
     hooks:
       - id: black
 ```
