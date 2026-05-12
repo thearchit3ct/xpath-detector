@@ -192,3 +192,28 @@ def test_split_dynamic_id_short_prefix_rejected():
     from xpath_detector.analyzer import _split_dynamic_id
 
     assert _split_dynamic_id("a_123") is None
+
+
+def test_by_id_prefix_generated_for_dynamic_id():
+    candidates = generate_candidates(
+        tag="input", text=None, attributes={"id": "vpu_amount_20260512"}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_id_prefix")
+    assert cand.expression == "//input[starts-with(@id,'vpu_amount_')]"
+    assert cand.stability_score == 85
+
+
+def test_by_id_prefix_NOT_generated_for_static_id():
+    candidates = generate_candidates(
+        tag="input", text=None, attributes={"id": "login"}
+    )
+    assert not any(c.strategy == "by_id_prefix" for c in candidates)
+
+
+def test_by_id_prefix_coexists_with_by_id():
+    candidates = generate_candidates(
+        tag="input", text=None, attributes={"id": "foo_123"}
+    )
+    strategies = [c.strategy for c in candidates]
+    assert "by_id" in strategies
+    assert "by_id_prefix" in strategies

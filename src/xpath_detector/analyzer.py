@@ -33,6 +33,17 @@ def generate_candidates(
             )
         )
 
+    if attributes.get("id"):
+        prefix = _split_dynamic_id(attributes["id"])
+        if prefix:
+            candidates.append(
+                XPathCandidate(
+                    strategy="by_id_prefix",
+                    expression=f"//{tag}[starts-with(@id,'{prefix}')]",
+                    stability_score=85,
+                )
+            )
+
     for attr, strategy, score in [
         ("data-testid", "by_data_testid", 90),
         ("name", "by_name", 80),
