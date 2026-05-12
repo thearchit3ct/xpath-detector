@@ -11,3 +11,10 @@ def test_overlay_js_contains_capture_marker():
 
 def test_overlay_js_listens_to_ctrl_click():
     assert "ctrlKey" in OVERLAY_JS or "metaKey" in OVERLAY_JS
+
+
+def test_overlay_click_uses_elementfrompoint():
+    """Click handler must use document.elementFromPoint for consistency with hover."""
+    from xpath_detector.overlay import OVERLAY_JS
+    click_block = OVERLAY_JS[OVERLAY_JS.find("'click'"):OVERLAY_JS.find("'keydown'")]
+    assert "elementFromPoint" in click_block, "click handler should use elementFromPoint"

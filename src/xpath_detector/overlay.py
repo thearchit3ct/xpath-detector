@@ -60,7 +60,7 @@ OVERLAY_JS = r"""
         if (!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
         e.stopPropagation();
-        const el = e.target;
+        const el = document.elementFromPoint(e.clientX, e.clientY) || e.target;
         const attrs = {};
         for (const a of el.attributes) attrs[a.name] = a.value;
         const data = {
