@@ -43,3 +43,34 @@ def test_session_round_trip_json():
     assert restored.id == "test_001"
     assert "login" in restored.screens
     assert restored.screens["login"].url == "https://x.fr"
+
+
+def test_session_round_trip_full_object_graph():
+    """Round-trip a Session with nested elements and xpaths to exercise from_dict deeply."""
+    candidate = XPathCandidate(strategy="by_id", expression="//input[@id='a']", stability_score=95)
+    element = Element(
+        tag="input",
+        text="hello",
+        attributes={"id": "a", "name": "user"},
+        xpaths=[candidate],
+        is_visible=True,
+        is_enabled=True,
+        description="User input",
+    )
+    screen = Screen(
+        name="login",
+        url="https://x.fr",
+        title="Login",
+        timestamp=datetime(2026, 5, 12, 10, 0, 0),
+        elements=[element],
+    )
+    session = Session(id="full_test", screens={"login": screen})
+
+    restored = Session.from_dict(json.loads(json.dumps(session.to_dict())))
+
+    assert restored.id == "full_test"
+    restored_element = restored.screens["login"].elements[0]
+    assert restored_element.tag == "input"
+    assert restored_element.attributes == {"id": "a", "name": "user"}
+    assert restored_element.xpaths[0] == candidate  # XPathCandidate is frozen -> __eq__ works
+    assert restored.screens["login"].timestamp == datetime(2026, 5, 12, 10, 0, 0)

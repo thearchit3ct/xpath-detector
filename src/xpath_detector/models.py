@@ -21,7 +21,11 @@ class XPathCandidate:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> XPathCandidate:
-        return cls(**data)
+        return cls(
+            strategy=data["strategy"],
+            expression=data["expression"],
+            stability_score=data["stability_score"],
+        )
 
 
 @dataclass
