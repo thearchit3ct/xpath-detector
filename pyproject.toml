@@ -4,16 +4,16 @@ version = "1.0.0"
 description = "Interactive XPath capture tool for web applications"
 requires-python = ">=3.11"
 dependencies = [
-    "playwright>=1.40",
+    "selenium>=4.0",
     "rich>=13.0",
     "click>=8.0",
 ]
 
 [project.optional-dependencies]
+playwright = ["playwright>=1.40"]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
-    "pytest-playwright>=0.4",
     "ruff>=0.4",
     "black>=24.0",
     "pre-commit>=3.0",
