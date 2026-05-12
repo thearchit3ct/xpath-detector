@@ -67,8 +67,7 @@ def generate_candidates(
                 XPathCandidate(
                     strategy="by_attr_combo",
                     expression=(
-                        f"//{tag}[@{a1}='{attributes[a1]}' "
-                        f"and @{a2}='{attributes[a2]}']"
+                        f"//{tag}[@{a1}='{attributes[a1]}' " f"and @{a2}='{attributes[a2]}']"
                     ),
                     stability_score=88,
                 )
@@ -157,12 +156,6 @@ def _is_dynamic_suffix(suffix: str) -> bool:
     """Heuristic: digit run, uuid-like, or date-like."""
     if suffix.isdigit():
         return True
-    if (
-        len(suffix) >= 8
-        and any(c.isdigit() for c in suffix)
-        and any(c.isalpha() for c in suffix)
-    ):
+    if len(suffix) >= 8 and any(c.isdigit() for c in suffix) and any(c.isalpha() for c in suffix):
         return True
-    if len(suffix) >= 8 and all(c.isdigit() or c == "-" for c in suffix):
-        return True
-    return False
+    return len(suffix) >= 8 and all(c.isdigit() or c == "-" for c in suffix)

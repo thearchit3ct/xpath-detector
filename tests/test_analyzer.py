@@ -141,9 +141,7 @@ def test_by_label_neighbor_skipped_if_none():
 
 def test_by_class_uses_safe_multiclass_pattern():
     """by_class must NOT match a partial class (regression for substring bug)."""
-    candidates = generate_candidates(
-        tag="button", text=None, attributes={"class": "btn"}
-    )
+    candidates = generate_candidates(tag="button", text=None, attributes={"class": "btn"})
     cand = next(c for c in candidates if c.strategy == "by_class")
     assert "concat(' '" in cand.expression
     assert "normalize-space(@class)" in cand.expression
@@ -156,8 +154,7 @@ def test_by_class_first_class_with_multiclass_attr():
     )
     cand = next(c for c in candidates if c.strategy == "by_class")
     assert (
-        cand.expression
-        == "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn ')]"
+        cand.expression == "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn ')]"
     )
 
 
@@ -204,16 +201,12 @@ def test_by_id_prefix_generated_for_dynamic_id():
 
 
 def test_by_id_prefix_NOT_generated_for_static_id():
-    candidates = generate_candidates(
-        tag="input", text=None, attributes={"id": "login"}
-    )
+    candidates = generate_candidates(tag="input", text=None, attributes={"id": "login"})
     assert not any(c.strategy == "by_id_prefix" for c in candidates)
 
 
 def test_by_id_prefix_coexists_with_by_id():
-    candidates = generate_candidates(
-        tag="input", text=None, attributes={"id": "foo_123"}
-    )
+    candidates = generate_candidates(tag="input", text=None, attributes={"id": "foo_123"})
     strategies = [c.strategy for c in candidates]
     assert "by_id" in strategies
     assert "by_id_prefix" in strategies
@@ -229,9 +222,7 @@ def test_by_attr_combo_skipped_when_id_present():
 
 
 def test_by_attr_combo_skipped_with_single_attr():
-    candidates = generate_candidates(
-        tag="input", text=None, attributes={"name": "amount"}
-    )
+    candidates = generate_candidates(tag="input", text=None, attributes={"name": "amount"})
     assert not any(c.strategy == "by_attr_combo" for c in candidates)
 
 
@@ -303,27 +294,21 @@ def test_by_label_for_escapes_apostrophe():
 
 
 def test_by_text_normalized_generated():
-    candidates = generate_candidates(
-        tag="button", text="Valider", attributes={}
-    )
+    candidates = generate_candidates(tag="button", text="Valider", attributes={})
     cand = next(c for c in candidates if c.strategy == "by_text_normalized")
     assert cand.expression == "//button[normalize-space()='Valider']"
     assert cand.stability_score == 72
 
 
 def test_by_text_normalized_coexists_with_by_text():
-    candidates = generate_candidates(
-        tag="a", text="Login", attributes={}
-    )
+    candidates = generate_candidates(tag="a", text="Login", attributes={})
     strategies = [c.strategy for c in candidates]
     assert "by_text_normalized" in strategies
     assert "by_text" in strategies
 
 
 def test_by_text_normalized_escapes_apostrophe():
-    candidates = generate_candidates(
-        tag="a", text="L'utilisateur", attributes={}
-    )
+    candidates = generate_candidates(tag="a", text="L'utilisateur", attributes={})
     cand = next(c for c in candidates if c.strategy == "by_text_normalized")
     assert "concat(" in cand.expression
 
@@ -332,9 +317,7 @@ def test_by_text_normalized_skipped_if_empty_or_long():
     candidates = generate_candidates(tag="div", text="", attributes={})
     assert not any(c.strategy == "by_text_normalized" for c in candidates)
 
-    candidates = generate_candidates(
-        tag="div", text="a" * 80, attributes={}
-    )
+    candidates = generate_candidates(tag="div", text="a" * 80, attributes={})
     assert not any(c.strategy == "by_text_normalized" for c in candidates)
 
 
@@ -384,9 +367,7 @@ def test_score_order_after_v13_additions():
 
 def test_by_class_no_longer_buggy_for_substring():
     """Regression test for the v1.3 by_class fix."""
-    candidates = generate_candidates(
-        tag="button", text=None, attributes={"class": "btn"}
-    )
+    candidates = generate_candidates(tag="button", text=None, attributes={"class": "btn"})
     cand = next(c for c in candidates if c.strategy == "by_class")
     assert cand.expression != "//button[contains(@class,'btn')]"
     assert "normalize-space(@class)" in cand.expression
