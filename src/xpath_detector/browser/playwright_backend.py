@@ -1,33 +1,44 @@
-"""Playwright sync browser wrapper."""
-
+"""Playwright sync browser backend (optional)."""
 from __future__ import annotations
 
-import json
 import logging
+import threading
+import time
 from collections.abc import Callable
 from typing import Any
 
-from playwright.sync_api import Page, Playwright, sync_playwright
+try:
+    from playwright.sync_api import Page, Playwright, sync_playwright
+except ImportError as e:
+    raise ImportError(
+        "Playwright not installed. Install with: pip install xpath-detector[playwright]"
+    ) from e
 
+from xpath_detector.browser.base import BrowserBackend
 from xpath_detector.overlay import OVERLAY_JS
 
 LOGGER = logging.getLogger(__name__)
-_CAPTURE_PREFIX = "__XPATH_CAPTURE__"
 
 
-class BrowserController:
+class PlaywrightBackend(BrowserBackend):
+    POLL_INTERVAL = 0.2
+
     def __init__(self) -> None:
         self._pw: Playwright | None = None
         self._browser = None
         self._page: Page | None = None
         self._capture_callback: Callable[[dict[str, Any]], None] | None = None
+        self._thread: threading.Thread | None = None
+        self._running = False
 
     def start(self) -> None:
         self._pw = sync_playwright().start()
         self._browser = self._pw.chromium.launch(headless=False)
         ctx = self._browser.new_context()
         self._page = ctx.new_page()
-        self._page.on("console", self._on_console_message)
+        self._running = True
+        self._thread = threading.Thread(target=self._poll_loop, daemon=True)
+        self._thread.start()
 
     def open(self, url: str) -> None:
         if not self._page:
@@ -49,6 +60,9 @@ class BrowserController:
         return self._page.title() if self._page else ""
 
     def stop(self) -> None:
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=2)
         try:
             if self._browser:
                 self._browser.close()
@@ -56,15 +70,16 @@ class BrowserController:
             if self._pw:
                 self._pw.stop()
 
-    def _on_console_message(self, msg: Any) -> None:
-        text = msg.text
-        if not text.startswith(_CAPTURE_PREFIX):
-            return
-        payload = text[len(_CAPTURE_PREFIX) :]
-        try:
-            data = json.loads(payload)
-        except json.JSONDecodeError:
-            LOGGER.warning("Invalid capture payload: %s", payload[:100])
-            return
-        if self._capture_callback:
-            self._capture_callback(data)
+    def _poll_loop(self) -> None:
+        while self._running:
+            try:
+                if self._page:
+                    items = self._page.evaluate(
+                        "() => (window.__xpath_capture_queue || []).splice(0)"
+                    )
+                    for item in items or []:
+                        if self._capture_callback:
+                            self._capture_callback(item)
+            except Exception as e:
+                LOGGER.debug("Poll loop transient error: %s", e)
+            time.sleep(self.POLL_INTERVAL)
