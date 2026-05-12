@@ -90,3 +90,22 @@ def test_candidates_sorted_by_score_desc():
     )
     scores = [c.stability_score for c in candidates]
     assert scores == sorted(scores, reverse=True)
+
+
+def test_escape_xpath_empty_string():
+    assert escape_xpath_literal("") == "''"
+
+
+def test_escape_xpath_only_apostrophe():
+    result = escape_xpath_literal("'")
+    assert result == "concat('', \"'\", '')"
+
+
+def test_escape_xpath_wrapped_with_apostrophes():
+    result = escape_xpath_literal("'x'")
+    assert result == "concat('', \"'\", 'x', \"'\", '')"
+
+
+def test_escape_xpath_consecutive_apostrophes():
+    result = escape_xpath_literal("x''y")
+    assert result == "concat('x', \"'\", '', \"'\", 'y')"
