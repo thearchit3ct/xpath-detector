@@ -6,3 +6,46 @@ from xpath_detector.exporters.base import Exporter
 def test_exporter_is_abstract():
     with pytest.raises(TypeError):
         Exporter()
+
+
+from datetime import datetime
+from pathlib import Path
+
+from xpath_detector.models import Element, Screen, Session, XPathCandidate
+
+
+def _sample_session() -> Session:
+    return Session(
+        id="20260512_120000",
+        screens={
+            "login": Screen(
+                name="login",
+                url="https://x.fr",
+                title="Login",
+                timestamp=datetime(2026, 5, 12, 12, 0, 0),
+                elements=[
+                    Element(
+                        tag="input",
+                        text=None,
+                        attributes={"id": "_login"},
+                        xpaths=[XPathCandidate("by_id", "//input[@id='_login']", 95)],
+                        is_visible=True,
+                        is_enabled=True,
+                        description="Login field",
+                    )
+                ],
+            )
+        },
+    )
+
+
+def test_json_exporter_creates_file(tmp_path: Path):
+    import json
+    from xpath_detector.exporters.json_exp import JsonExporter
+
+    exporter = JsonExporter()
+    out = exporter.export(_sample_session(), tmp_path)
+    assert out.suffix == ".json"
+    data = json.loads(out.read_text())
+    assert data["id"] == "20260512_120000"
+    assert "login" in data["screens"]
