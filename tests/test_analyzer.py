@@ -257,3 +257,46 @@ def test_by_attr_combo_picks_first_two_by_priority():
     )
     cand = next(c for c in candidates if c.strategy == "by_attr_combo")
     assert cand.expression == "//input[@name='amount' and @type='number']"
+
+
+def test_by_label_for_generated_with_id_and_label():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={"id": "vpu_amount"},
+        nearby_label="Montant :",
+    )
+    cand = next(c for c in candidates if c.strategy == "by_label_for")
+    assert cand.expression == "//*[@id=//label[contains(.,'Montant :')]/@for]"
+    assert cand.stability_score == 78
+
+
+def test_by_label_for_skipped_without_id():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={},
+        nearby_label="Montant :",
+    )
+    assert not any(c.strategy == "by_label_for" for c in candidates)
+
+
+def test_by_label_for_skipped_without_label():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={"id": "vpu_amount"},
+        nearby_label=None,
+    )
+    assert not any(c.strategy == "by_label_for" for c in candidates)
+
+
+def test_by_label_for_escapes_apostrophe():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={"id": "x"},
+        nearby_label="Reference donneur d'ordre :",
+    )
+    cand = next(c for c in candidates if c.strategy == "by_label_for")
+    assert "concat(" in cand.expression

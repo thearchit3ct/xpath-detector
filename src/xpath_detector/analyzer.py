@@ -74,6 +74,17 @@ def generate_candidates(
                 )
             )
 
+    if nearby_label and attributes.get("id"):
+        candidates.append(
+            XPathCandidate(
+                strategy="by_label_for",
+                expression=(
+                    f"//*[@id=//label[contains(.,{escape_xpath_literal(nearby_label)})]/@for]"
+                ),
+                stability_score=78,
+            )
+        )
+
     if text and 0 < len(text) < 50:
         candidates.append(
             XPathCandidate(
