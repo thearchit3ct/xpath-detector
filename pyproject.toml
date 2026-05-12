@@ -1,0 +1,52 @@
+[project]
+name = "xpath-detector"
+version = "1.0.0"
+description = "Interactive XPath capture tool for web applications"
+requires-python = ">=3.11"
+dependencies = [
+    "playwright>=1.40",
+    "rich>=13.0",
+    "click>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-playwright>=0.4",
+    "ruff>=0.4",
+    "black>=24.0",
+    "pre-commit>=3.0",
+]
+
+[project.scripts]
+xpath-detector = "xpath_detector.__main__:main"
+
+[project.entry-points."xpath_detector.exporters"]
+json = "xpath_detector.exporters.json_exp:JsonExporter"
+html = "xpath_detector.exporters.html_exp:HtmlExporter"
+robot = "xpath_detector.exporters.robot_exp:RobotExporter"
+java = "xpath_detector.exporters.java_exp:JavaExporter"
+python = "xpath_detector.exporters.python_exp:PythonExporter"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/xpath_detector"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=xpath_detector --cov-report=term-missing -v"
+testpaths = ["tests"]
