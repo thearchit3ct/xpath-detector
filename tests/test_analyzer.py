@@ -109,3 +109,31 @@ def test_escape_xpath_wrapped_with_apostrophes():
 def test_escape_xpath_consecutive_apostrophes():
     result = escape_xpath_literal("x''y")
     assert result == "concat('x', \"'\", '', \"'\", 'y')"
+
+
+def test_generate_by_label_neighbor():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={},
+        nearby_label="Compte beneficiaire :",
+    )
+    cand = next(c for c in candidates if c.strategy == "by_label_neighbor")
+    assert "//span[contains(.,'Compte beneficiaire :')]/../../td/input" == cand.expression
+    assert cand.stability_score == 50
+
+
+def test_by_label_neighbor_escapes_apostrophe():
+    candidates = generate_candidates(
+        tag="input",
+        text=None,
+        attributes={},
+        nearby_label="Reference donneur d'ordre :",
+    )
+    cand = next(c for c in candidates if c.strategy == "by_label_neighbor")
+    assert "concat(" in cand.expression
+
+
+def test_by_label_neighbor_skipped_if_none():
+    candidates = generate_candidates(tag="input", text=None, attributes={"id": "x"})
+    assert not any(c.strategy == "by_label_neighbor" for c in candidates)

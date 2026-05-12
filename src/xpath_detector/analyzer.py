@@ -19,6 +19,7 @@ def generate_candidates(
     text: str | None,
     attributes: dict[str, str],
     absolute_xpath: str | None = None,
+    nearby_label: str | None = None,
 ) -> list[XPathCandidate]:
     """Genere une liste de candidats xpath tries par score decroissant."""
     candidates: list[XPathCandidate] = []
@@ -52,6 +53,15 @@ def generate_candidates(
                 strategy="by_text",
                 expression=f"//{tag}[contains(.,{escape_xpath_literal(text)})]",
                 stability_score=70,
+            )
+        )
+
+    if nearby_label and 0 < len(nearby_label) < 50:
+        candidates.append(
+            XPathCandidate(
+                strategy="by_label_neighbor",
+                expression=f"//span[contains(.,{escape_xpath_literal(nearby_label)})]/../../td/{tag}",
+                stability_score=50,
             )
         )
 
