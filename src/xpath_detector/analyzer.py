@@ -91,3 +91,31 @@ def generate_candidates(
 
     candidates.sort(key=lambda c: -c.stability_score)
     return candidates
+
+
+def _split_dynamic_id(id_value: str) -> str | None:
+    """Detect dynamic IDs (with timestamp/uuid/digit suffix) and return their stable prefix."""
+    for sep in ("_", "-"):
+        if sep not in id_value:
+            continue
+        prefix, _, suffix = id_value.rpartition(sep)
+        if len(prefix) < 3 or not suffix:
+            continue
+        if _is_dynamic_suffix(suffix):
+            return prefix + sep
+    return None
+
+
+def _is_dynamic_suffix(suffix: str) -> bool:
+    """Heuristic: digit run, uuid-like, or date-like."""
+    if suffix.isdigit():
+        return True
+    if (
+        len(suffix) >= 8
+        and any(c.isdigit() for c in suffix)
+        and any(c.isalpha() for c in suffix)
+    ):
+        return True
+    if len(suffix) >= 8 and all(c.isdigit() or c == "-" for c in suffix):
+        return True
+    return False

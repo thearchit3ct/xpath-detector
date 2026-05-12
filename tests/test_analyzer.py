@@ -159,3 +159,36 @@ def test_by_class_first_class_with_multiclass_attr():
         cand.expression
         == "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn ')]"
     )
+
+
+def test_split_dynamic_id_digits_only_suffix():
+    from xpath_detector.analyzer import _split_dynamic_id
+
+    assert _split_dynamic_id("vpu_amount_20260512") == "vpu_amount_"
+    assert _split_dynamic_id("user-123") == "user-"
+
+
+def test_split_dynamic_id_uuid_like():
+    from xpath_detector.analyzer import _split_dynamic_id
+
+    assert _split_dynamic_id("field_a1b2c3d4") == "field_"
+
+
+def test_split_dynamic_id_date_with_dashes():
+    from xpath_detector.analyzer import _split_dynamic_id
+
+    assert _split_dynamic_id("foo_2026-05-12") == "foo_"
+
+
+def test_split_dynamic_id_static_returns_none():
+    from xpath_detector.analyzer import _split_dynamic_id
+
+    assert _split_dynamic_id("login") is None
+    assert _split_dynamic_id("foo_ab") is None
+    assert _split_dynamic_id("user_name") is None
+
+
+def test_split_dynamic_id_short_prefix_rejected():
+    from xpath_detector.analyzer import _split_dynamic_id
+
+    assert _split_dynamic_id("a_123") is None
