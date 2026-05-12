@@ -69,7 +69,7 @@ def test_by_text_skipped_if_empty():
 def test_generate_by_class():
     candidates = generate_candidates(tag="button", text=None, attributes={"class": "btn-primary"})
     cand = next(c for c in candidates if c.strategy == "by_class")
-    assert "contains(@class,'btn-primary')" in cand.expression
+    assert "' btn-primary '" in cand.expression
     assert cand.stability_score == 60
 
 
@@ -137,3 +137,25 @@ def test_by_label_neighbor_escapes_apostrophe():
 def test_by_label_neighbor_skipped_if_none():
     candidates = generate_candidates(tag="input", text=None, attributes={"id": "x"})
     assert not any(c.strategy == "by_label_neighbor" for c in candidates)
+
+
+def test_by_class_uses_safe_multiclass_pattern():
+    """by_class must NOT match a partial class (regression for substring bug)."""
+    candidates = generate_candidates(
+        tag="button", text=None, attributes={"class": "btn"}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_class")
+    assert "concat(' '" in cand.expression
+    assert "normalize-space(@class)" in cand.expression
+    assert "' btn '" in cand.expression
+
+
+def test_by_class_first_class_with_multiclass_attr():
+    candidates = generate_candidates(
+        tag="button", text=None, attributes={"class": "btn btn-primary"}
+    )
+    cand = next(c for c in candidates if c.strategy == "by_class")
+    assert (
+        cand.expression
+        == "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn ')]"
+    )

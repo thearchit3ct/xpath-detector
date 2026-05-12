@@ -72,7 +72,10 @@ def generate_candidates(
             candidates.append(
                 XPathCandidate(
                     strategy="by_class",
-                    expression=f"//{tag}[contains(@class,'{first_class}')]",
+                    expression=(
+                        f"//{tag}[contains(concat(' ', normalize-space(@class), ' '), "
+                        f"' {first_class} ')]"
+                    ),
                     stability_score=60,
                 )
             )
